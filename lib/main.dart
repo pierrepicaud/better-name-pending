@@ -55,20 +55,77 @@ class _MyAppState extends State<MyApp> {
           title: Text('Sensor Data'),
         ),
         body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Accelerometer:'),
-            Text('x: ${_accelerometerValues?[0] ?? 'N/A'}'),
-            Text('y: ${_accelerometerValues?[1] ?? 'N/A'}'),
-            Text('z: ${_accelerometerValues?[2] ?? 'N/A'}'),
-            SizedBox(height: 20),
-            Text('Gyroscope:'),
-            Text('x: ${_gyroscopeValues?[0] ?? 'N/A'}'),
-            Text('y: ${_gyroscopeValues?[1] ?? 'N/A'}'),
-            Text('z: ${_gyroscopeValues?[2] ?? 'N/A'}'),
+            Expanded(
+              child: Container(
+                color: Colors.grey[200],
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Accelerometer',
+                      style: TextStyle(fontSize: 24),
+                    ),
+                    SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildSensorValue('X', _accelerometerValues?[0]),
+                        SizedBox(width: 20),
+                        _buildSensorValue('Y', _accelerometerValues?[1]),
+                        SizedBox(width: 20),
+                        _buildSensorValue('Z', _accelerometerValues?[2]),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Expanded(
+              child: Container(
+                color: Colors.grey[300],
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Gyroscope',
+                      style: TextStyle(fontSize: 24),
+                    ),
+                    SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        _buildSensorValue('X', _gyroscopeValues?[0]),
+                        SizedBox(width: 20),
+                        _buildSensorValue('Y', _gyroscopeValues?[1]),
+                        SizedBox(width: 20),
+                        _buildSensorValue('Z', _gyroscopeValues?[2]),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildSensorValue(String label, double? value) {
+    return Column(
+      children: [
+        Text(
+          label,
+          style: TextStyle(fontSize: 18),
+        ),
+        SizedBox(height: 10),
+        Text(
+          value?.toStringAsFixed(2) ?? 'N/A',
+          style: TextStyle(fontSize: 24),
+        ),
+      ],
     );
   }
 }
