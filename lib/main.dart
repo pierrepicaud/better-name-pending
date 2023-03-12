@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:sensors_plus/sensors_plus.dart';
+import 'sensor_display/sensor_data_screen.dart';
 
-void main() {
-  runApp(MyApp());
-}
+void main() => runApp(MyApp());
 
 class MyApp extends StatefulWidget {
   @override
@@ -11,121 +9,46 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  List<double>? _accelerometerValues;
-  List<double>? _gyroscopeValues;
+  int _selectedIndex = 0;
+  static final List<Widget> _widgetOptions = <Widget>[
+    Text('Work in progress'),
+    SensorDataScreen(),
+    Text('Work in progress'),
+  ];
 
-  @override
-  void initState() {
-    super.initState();
-    _accelerometerValues = <double>[0, 0, 0];
-    _gyroscopeValues = <double>[0, 0, 0];
-    _activateSensors();
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    _deactivateSensors();
-  }
-
-  void _activateSensors() {
-    accelerometerEvents.listen((AccelerometerEvent event) {
-      setState(() {
-        _accelerometerValues = <double>[event.x, event.y, event.z];
-      });
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
     });
-
-    gyroscopeEvents.listen((GyroscopeEvent event) {
-      setState(() {
-        _gyroscopeValues = <double>[event.x, event.y, event.z];
-      });
-    });
-  }
-
-  void _deactivateSensors() {
-    accelerometerEvents.drain();
-    gyroscopeEvents.drain();
   }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(
-          title: Text('Sensor Data'),
+        body: Center(
+          child: _widgetOptions.elementAt(_selectedIndex),
         ),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: Container(
-                color: Colors.grey[200],
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Accelerometer',
-                      style: TextStyle(fontSize: 24),
-                    ),
-                    SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _buildSensorValue('X', _accelerometerValues?[0]),
-                        SizedBox(width: 20),
-                        _buildSensorValue('Y', _accelerometerValues?[1]),
-                        SizedBox(width: 20),
-                        _buildSensorValue('Z', _accelerometerValues?[2]),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+        bottomNavigationBar: BottomNavigationBar(
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Home',
             ),
-            Expanded(
-              child: Container(
-                color: Colors.grey[300],
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Gyroscope',
-                      style: TextStyle(fontSize: 24),
-                    ),
-                    SizedBox(height: 20),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        _buildSensorValue('X', _gyroscopeValues?[0]),
-                        SizedBox(width: 20),
-                        _buildSensorValue('Y', _gyroscopeValues?[1]),
-                        SizedBox(width: 20),
-                        _buildSensorValue('Z', _gyroscopeValues?[2]),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.sensors),
+              label: 'Sensor Data',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'Profile',
             ),
           ],
+          currentIndex: _selectedIndex,
+          selectedItemColor: Colors.blue,
+          onTap: _onItemTapped,
         ),
       ),
-    );
-  }
-
-  Widget _buildSensorValue(String label, double? value) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: TextStyle(fontSize: 18),
-        ),
-        SizedBox(height: 10),
-        Text(
-          value?.toStringAsFixed(2) ?? 'N/A',
-          style: TextStyle(fontSize: 24),
-        ),
-      ],
     );
   }
 }
