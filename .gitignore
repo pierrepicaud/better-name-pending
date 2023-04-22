@@ -9,6 +9,7 @@
 .history
 .svn/
 migrate_working_dir/
+/lib/sensor_segment_display/temp.dart
 
 # IntelliJ related
 *.iml

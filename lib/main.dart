@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'sensor_display/sensor_data_screen.dart';
+import 'sensor_segment_display/sensor_segment_screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -13,7 +14,7 @@ class _MyAppState extends State<MyApp> {
   static final List<Widget> _widgetOptions = <Widget>[
     Text('Work in progress'),
     SensorDataScreen(),
-    Text('Work in progress'),
+    SensorSegmentScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -32,8 +33,12 @@ class _MyAppState extends State<MyApp> {
         bottomNavigationBar: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
+              icon: Icon(
+                Icons.lightbulb_outline,
+                color: Colors.yellow,
+                size: 32.0,
+              ),
+              label: 'Prediction',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.sensors),
@@ -41,7 +46,7 @@ class _MyAppState extends State<MyApp> {
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person),
-              label: 'Profile',
+              label: 'Data Segment',
             ),
           ],
           currentIndex: _selectedIndex,
