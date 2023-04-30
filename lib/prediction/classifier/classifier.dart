@@ -26,16 +26,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+// ignore_for_file: avoid_print
+
 import 'dart:ffi';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
-import 'package:image/image.dart';
+// import 'package:image/image.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
 
 import 'classifier_category.dart';
 import 'classifier_model.dart';
+
+import 'dart:async';
+import 'dart:typed_data';
+import 'package:sensors_plus/sensors_plus.dart';
 
 typedef ClassifierLabels = List<String>;
 
@@ -108,14 +114,25 @@ class Classifier {
     _model.interpreter.close();
   }
 
-  ClassifierCategory predict(Image image) {
+  ClassifierCategory predict(List<List<Float64List>> data) {
+    // Trying to feed the data into the model
+    // Get the input tensor shape and data type
+    final inputShape = _model.interpreter.getInputTensor(0).shape;
+    final inputType = _model.interpreter.getInputTensor(0).type;
+
+    // Create a new Tensor with the desired shape
+    final inputTensor = Tensor.fromList(inputType, inputShape, [1.0, 2.0, 3.0, 4.0]);
+
+    // Create a new TensorBufferFloat from the Tensor
+    final inputBuffer = TensorBufferFloat.fromTensor(inputTensor);
+
+    // Set the input tensor values
+    final inputValues = data;
+    inputBuffer.loadList(inputValues);
     // debugPrint(
     //   'Image: ${image.width}x${image.height}, '
     //   'size: ${image.length} bytes',
     // );
-
-    // Load the image and convert it to TensorImage for TensorFlow Input
-    final inputImage = _preProcessInput(image);
 
     // debugPrint(
     //   'Pre-processed image: ${inputImage.width}x${image.height}, '
@@ -160,7 +177,17 @@ class Classifier {
     return categoryList;
   }
 
-  TensorBufferFloat _preProcessInput(List<List<Double>> image) {
-    // TODO: get the sensor data and convert it to a format the model accepts
-  }
+  // TensorBufferFloat _preProcessInput(List<List<Float64List>> data, ) {
+
+  //   // Get the input tensor shape and data type
+  //   final inputShape = interpreter.getInputTensor(0).shape;
+  //   final inputType = interpreter.getInputTensor(0).type;
+
+  //   // Create a TensorBufferFloat with the same shape and data type as the input tensor
+  //   final inputBuffer = TensorBufferFloat.fromShape(inputShape, inputType);
+
+  //   // Set the input tensor values
+  //   final inputValues = [1.0, 2.0, 3.0, 4.0];
+  //   inputBuffer.loadList(inputValues);
+  // }
 }

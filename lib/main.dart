@@ -1,6 +1,6 @@
+// Reset this to the initial state
 import 'package:flutter/material.dart';
 import 'sensor_display/sensor_data_screen.dart';
-import 'sensor_segment_display/sensor_segment_screen.dart';
 
 void main() => runApp(MyApp());
 
@@ -12,9 +12,11 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   int _selectedIndex = 0;
   static final List<Widget> _widgetOptions = <Widget>[
-    Text('Work in progress'),
-    SensorDataScreen(),
-    SensorSegmentScreen(),
+    const Text('Work in progress'),
+    const Text('Work in progress'),
+    const Text('Work in progress'),
+    // SensorDataScreen(),
+    // SensorSegmentScreen(),
   ];
 
   void _onItemTapped(int index) {

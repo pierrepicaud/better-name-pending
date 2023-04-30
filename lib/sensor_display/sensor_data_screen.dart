@@ -1,125 +1,104 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
+import 'dart:typed_data';
 import 'package:sensors_plus/sensors_plus.dart';
 
-class SensorDataScreen extends StatefulWidget {
+class SignalsScreen extends StatefulWidget {
+  const SignalsScreen({Key? key}) : super(key: key);
+
   @override
-  _SensorDataScreenState createState() => _SensorDataScreenState();
+  _SignalsScreenState createState() => _SignalsScreenState();
 }
 
-class _SensorDataScreenState extends State<SensorDataScreen> {
-  List<double>? _accelerometerValues;
-  List<double>? _gyroscopeValues;
+class _SignalsScreenState extends State<SignalsScreen> {
+  // Sampling
+  final sampling = <Float64List>[];
+
+  StreamSubscription<AccelerometerEvent>? accelerometerSubscription;
+  StreamSubscription<GyroscopeEvent>? gyroscopeSubscription;
+  StreamSubscription<UserAccelerometerEvent>? userAccelerometerSubscription;
+
+  void addSignals(List<double> data, int offset) {
+    final signals = Float64List(9);
+    signals[0 + offset] = data[0];
+    signals[1 + offset] = data[1];
+    signals[2 + offset] = data[2];
+    sampling.add(signals);
+    setState(() {}); // Update the UI when new signals are added
+  }
+
+  void activateSensors() {
+  while (sampling.length < 128) {
+      accelerometerSubscription = accelerometerEvents.listen((event) {
+        addSignals([event.x, event.y, event.z], 0);
+      });
+
+      userAccelerometerSubscription = userAccelerometerEvents.listen((event) {
+        addSignals([event.x, event.y, event.z], 3);
+      });
+
+      gyroscopeSubscription = gyroscopeEvents.listen((event) {
+        addSignals([event.x, event.y, event.z], 6);
+      });
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    _accelerometerValues = <double>[0, 0, 0];
-    _gyroscopeValues = <double>[0, 0, 0];
-    _activateSensors();
+    activateSensors();
   }
 
   @override
   void dispose() {
+    accelerometerSubscription?.cancel();
+    gyroscopeSubscription?.cancel();
+    userAccelerometerSubscription?.cancel();
     super.dispose();
-    _deactivateSensors();
-  }
-
-  void _activateSensors() {
-    accelerometerEvents.listen((AccelerometerEvent event) {
-      setState(() {
-        _accelerometerValues = <double>[event.x, event.y, event.z];
-      });
-    });
-
-    gyroscopeEvents.listen((GyroscopeEvent event) {
-      setState(() {
-        _gyroscopeValues = <double>[event.x, event.y, event.z];
-      });
-    });
-  }
-
-  void _deactivateSensors() {
-    accelerometerEvents.drain();
-    gyroscopeEvents.drain();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Sensor Data'),
+        title: const Text('Signals'),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: Container(
-              color: Colors.grey[200],
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Accelerometer',
-                    style: TextStyle(fontSize: 24),
-                  ),
-                  SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildSensorValue('X', _accelerometerValues?[0]),
-                      SizedBox(width: 20),
-                      _buildSensorValue('Y', _accelerometerValues?[1]),
-                      SizedBox(width: 20),
-                      _buildSensorValue('Z', _accelerometerValues?[2]),
-                    ],
-                  ),
-                ],
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListView.builder(
+          itemCount: sampling.length,
+          itemBuilder: (BuildContext context, int index) {
+            final signals = sampling[index];
+            return Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Signal #$index',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18.0,
+                      ),
+                    ),
+                    const SizedBox(height: 8.0),
+                    Text('Acc X: ${signals[0]}'),
+                    Text('Acc Y: ${signals[1]}'),
+                    Text('Acc Z: ${signals[2]}'),
+                    Text('User Acc X: ${signals[3]}'),
+                    Text('User Acc Y: ${signals[4]}'),
+                    Text('User Acc Z: ${signals[5]}'),
+                    Text('Gyro X: ${signals[6]}'),
+                    Text('Gyro Y: ${signals[7]}'),
+                    Text('Gyro Z: ${signals[8]}'),
+                  ],
+                ),
               ),
-            ),
-          ),
-          Expanded(
-            child: Container(
-              color: Colors.grey[300],
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Gyroscope',
-                    style: TextStyle(fontSize: 24),
-                  ),
-                  SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildSensorValue('X', _gyroscopeValues?[0]),
-                      SizedBox(width: 20),
-                      _buildSensorValue('Y', _gyroscopeValues?[1]),
-                      SizedBox(width: 20),
-                      _buildSensorValue('Z', _gyroscopeValues?[2]),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
+            );
+          },
+        ),
       ),
-    );
-  }
-
-  Widget _buildSensorValue(String label, double? value) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: TextStyle(fontSize: 18),
-        ),
-        SizedBox(height: 10),
-        Text(
-          value?.toStringAsFixed(2) ?? 'N/A',
-          style: TextStyle(fontSize: 24),
-        ),
-      ],
     );
   }
 }
