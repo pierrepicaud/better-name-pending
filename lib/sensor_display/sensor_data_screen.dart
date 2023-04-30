@@ -114,7 +114,7 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
           label,
           style: TextStyle(fontSize: 18),
         ),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
         Text(
           value?.toStringAsFixed(2) ?? 'N/A',
           style: TextStyle(fontSize: 24),

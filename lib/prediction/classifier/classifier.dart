@@ -129,15 +129,6 @@ class Classifier {
     // Set the input tensor values
     final inputValues = data;
     inputBuffer.loadList(inputValues);
-    // debugPrint(
-    //   'Image: ${image.width}x${image.height}, '
-    //   'size: ${image.length} bytes',
-    // );
-
-    // debugPrint(
-    //   'Pre-processed image: ${inputImage.width}x${image.height}, '
-    //   'size: ${inputImage.buffer.lengthInBytes} bytes',
-    // );
 
     // Define the output buffer
     final outputBuffer = TensorBuffer.createFixedSize(
@@ -146,7 +137,7 @@ class Classifier {
     );
 
     // Run inference
-    _model.interpreter.run(inputImage.buffer, outputBuffer.buffer);
+    _model.interpreter.run(inputBuffer.buffer, outputBuffer.buffer);
 
     debugPrint('OutputBuffer: ${outputBuffer.getDoubleList()}');
 
