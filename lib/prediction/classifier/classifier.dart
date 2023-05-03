@@ -114,59 +114,59 @@ class Classifier {
     _model.interpreter.close();
   }
 
-  ClassifierCategory predict(List<List<Float64List>> data) {
-    // Trying to feed the data into the model
-    // Get the input tensor shape and data type
-    final inputShape = _model.interpreter.getInputTensor(0).shape;
-    final inputType = _model.interpreter.getInputTensor(0).type;
+  // ClassifierCategory predict(List<List<Float64List>> data) {
+  //   // Trying to feed the data into the model
+  //   // Get the input tensor shape and data type
+  //   final inputShape = _model.interpreter.getInputTensor(0).shape;
+  //   final inputType = _model.interpreter.getInputTensor(0).type;
 
-    // Create a new Tensor with the desired shape
-    final inputTensor = Tensor.fromList(inputType, inputShape, [1.0, 2.0, 3.0, 4.0]);
+  //   // Create a new Tensor with the desired shape
+  //   final inputTensor = Tensor.fromList(inputType, inputShape, [1.0, 2.0, 3.0, 4.0]);
 
-    // Create a new TensorBufferFloat from the Tensor
-    final inputBuffer = TensorBufferFloat.fromTensor(inputTensor);
+  //   // Create a new TensorBufferFloat from the Tensor
+  //   final inputBuffer = TensorBufferFloat.fromTensor(inputTensor);
 
-    // Set the input tensor values
-    final inputValues = data;
-    inputBuffer.loadList(inputValues);
+  //   // Set the input tensor values
+  //   final inputValues = data;
+  //   inputBuffer.loadList(inputValues);
 
-    // Define the output buffer
-    final outputBuffer = TensorBuffer.createFixedSize(
-      _model.outputShape,
-      _model.outputType,
-    );
+  //   // Define the output buffer
+  //   final outputBuffer = TensorBuffer.createFixedSize(
+  //     _model.outputShape,
+  //     _model.outputType,
+  //   );
 
-    // Run inference
-    _model.interpreter.run(inputBuffer.buffer, outputBuffer.buffer);
+  //   // Run inference
+  //   _model.interpreter.run(inputBuffer.buffer, outputBuffer.buffer);
 
-    debugPrint('OutputBuffer: ${outputBuffer.getDoubleList()}');
+  //   debugPrint('OutputBuffer: ${outputBuffer.getDoubleList()}');
 
-    // Post Process the outputBuffer
-    final resultCategories = _postProcessOutput(outputBuffer);
-    final topResult = resultCategories.first;
+  //   // Post Process the outputBuffer
+  //   final resultCategories = _postProcessOutput(outputBuffer);
+  //   final topResult = resultCategories.first;
 
-    debugPrint('Top category: $topResult');
+  //   debugPrint('Top category: $topResult');
 
-    return topResult;
-  }
+  //   return topResult;
+  // }
 
-  List<ClassifierCategory> _postProcessOutput(TensorBuffer outputBuffer) {
-    final probabilityProcessor = TensorProcessorBuilder().build();
+  // List<ClassifierCategory> _postProcessOutput(TensorBuffer outputBuffer) {
+  //   final probabilityProcessor = TensorProcessorBuilder().build();
 
-    probabilityProcessor.process(outputBuffer);
+  //   probabilityProcessor.process(outputBuffer);
 
-    final labelledResult = TensorLabel.fromList(_labels, outputBuffer);
+  //   final labelledResult = TensorLabel.fromList(_labels, outputBuffer);
 
-    final categoryList = <ClassifierCategory>[];
-    labelledResult.getMapWithFloatValue().forEach((key, value) {
-      final category = ClassifierCategory(key, value);
-      categoryList.add(category);
-      debugPrint('label: ${category.label}, score: ${category.score}');
-    });
-    categoryList.sort((a, b) => (b.score > a.score ? 1 : -1));
+  //   final categoryList = <ClassifierCategory>[];
+  //   labelledResult.getMapWithFloatValue().forEach((key, value) {
+  //     final category = ClassifierCategory(key, value);
+  //     categoryList.add(category);
+  //     debugPrint('label: ${category.label}, score: ${category.score}');
+  //   });
+  //   categoryList.sort((a, b) => (b.score > a.score ? 1 : -1));
 
-    return categoryList;
-  }
+  //   return categoryList;
+  // }
 
   // TensorBufferFloat _preProcessInput(List<List<Float64List>> data, ) {
 
