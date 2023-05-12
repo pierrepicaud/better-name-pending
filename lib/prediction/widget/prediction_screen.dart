@@ -1,9 +1,10 @@
-// ignore_for_file: unused_field, unused_element, unused_import, prefer_final_fields
+// ignore_for_file: unused_field, unused_element, unused_import, prefer_final_fields, avoid_print
 
 import 'dart:typed_data';
+import 'dart:io';
 import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
-
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:flutter/material.dart';
 import '../get_sensors_data.dart';
 // import '../classifier/classifier.dart.old';
@@ -42,6 +43,16 @@ class _ActivitiesRecognizerState extends State<ActivitiesRecognizer> {
     _loadClassifier();
   }
 
+  Future<String?> readMyFile() async {
+    try {
+      final fileContent = await rootBundle.loadString('assets/model.txt');
+      return fileContent;
+    } catch (e) {
+      print("Couldn't read file: $e");
+      return null;
+    }
+  }
+
   Future<void> _loadClassifier() async {
     // debugPrint(
     //   'Start loading of Classifier with '
@@ -54,16 +65,24 @@ class _ActivitiesRecognizerState extends State<ActivitiesRecognizer> {
     //   modelFileName: _modelFileName,
     // );
     // _classifier = classifier!;
-    final interpreter = await Interpreter.fromAsset('simple_ffnn_model.tflite');
-    print('Interpreter loaded successfully');
 
-    final inputShape = interpreter.getInputTensor(0).shape;
-    final inputType = interpreter.getInputTensor(0).type;
+    final modelFile = await readMyFile();
 
-    print('Input Type: $inputType');
-    print('Input Shape: $inputShape');
+    print('Using model file: $modelFile');
+    if (modelFile != null) {
+      final interpreter = await Interpreter.fromAsset(modelFile);
+      print('Interpreter loaded successfully');
+
+      final inputShape = interpreter.getInputTensor(0).shape;
+      final inputType = interpreter.getInputTensor(0).type;
+
+      print('Input Type: $inputType');
+      print('Input Shape: $inputShape');
+    } else {
+      print('Failed to load model file');
+    }
   }
-
+  
   @override
   Widget build(BuildContext context) {
     return const Placeholder();
