@@ -24,6 +24,13 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
 
   bool thereIsStillTime = false;
 
+  void _startCountDown() async {
+    thereIsStillTime = true;
+    await Future.delayed(Duration(milliseconds: 2560));
+    thereIsStillTime = false;
+    _updateSamplingRate();
+  }
+
   @override
   void initState() {
     super.initState();
@@ -33,14 +40,15 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
     accelerometerSamplingRate = 0;
     userAccelerometerSamplingRate = 0;
     gyroscopeSamplingRate = 0;
+    _startCountDown();
     _activateSensors();
+    _updateSamplingRate();
   }
 
   @override
   void dispose() {
     super.dispose();
     _deactivateSensors();
-    _updateSamplingRate();
   }
 
   void _activateSensors() {
@@ -48,18 +56,27 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
       setState(() {
         _accelerometerValues = <double>[event.x, event.y, event.z];
       });
+      if (thereIsStillTime) {
+        recordedAccelerometerEvent.add(event);
+      }
     });
 
     gyroscopeEvents.listen((GyroscopeEvent event) {
       setState(() {
         _gyroscopeValues = <double>[event.x, event.y, event.z];
       });
+      if (thereIsStillTime) {
+        recoreddGyroscopeEvent.add(event);
+      }
     });
 
     userAccelerometerEvents.listen((UserAccelerometerEvent event) {
       setState(() {
         _userAccelerometerValues = <double>[event.x, event.y, event.z];
       });
+      if (thereIsStillTime) {
+        recordedUserAccelerometerEvent.add(event);
+      }
     });
   }
 
@@ -74,34 +91,20 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
   }
 
   void _updateSamplingRate() {
-    countDown();
-    while (thereIsStillTime) {
-      accelerometerEvents.listen((AccelerometerEvent event) {
-        recordedAccelerometerEvent.add(event);
-      });
-      // [AccelerometerEvent (x: 0.0, y: 9.8, z: 0.0)]
-
-      userAccelerometerEvents.listen((UserAccelerometerEvent event) {
-        recordedUserAccelerometerEvent.add(event);
-      });
-      // [UserAccelerometerEvent (x: 0.0, y: 0.0, z: 0.0)]
-
-      gyroscopeEvents.listen((GyroscopeEvent event) {
-        recoreddGyroscopeEvent.add(event);
-      });
-    }
-
     setState(() {
       accelerometerSamplingRate =
           calculateSamplingRate(recordedAccelerometerEvent.length, 2560);
+      recordedAccelerometerEvent.clear();
     });
     setState(() {
       userAccelerometerSamplingRate =
           calculateSamplingRate(recordedUserAccelerometerEvent.length, 2560);
+      recordedUserAccelerometerEvent.clear();
     });
     setState(() {
       gyroscopeSamplingRate =
           calculateSamplingRate(recoreddGyroscopeEvent.length, 2560);
+      recoreddGyroscopeEvent.clear();
     });
   }
 

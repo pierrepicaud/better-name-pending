@@ -7,13 +7,13 @@ List<AccelerometerEvent> recordedAccelerometerEvent = [];
 List<UserAccelerometerEvent> recordedUserAccelerometerEvent = [];
 List<GyroscopeEvent> recoreddGyroscopeEvent = [];
 
-Future<void> countDown() async {
-  print('Countdown started');
-  thereIsStillTime = true;
-  await Future.delayed(const Duration(milliseconds: 2560));
-  thereIsStillTime = false;
-  print('Countdown finished');
-}
+// Future<void> countDown() async {
+//   print('Countdown started');
+//   thereIsStillTime = true;
+//   await Future.delayed(const Duration(milliseconds: 2560));
+//   thereIsStillTime = false;
+//   print('Countdown finished');
+// }
 
 void activateSensors() {
   accelerometerEvents.listen((AccelerometerEvent event) {
@@ -38,7 +38,7 @@ void deactivateSensors() {
 }
 
 void dummyFunction() {
-  countDown();
+  // countDown();
   while (thereIsStillTime) {
     activateSensors();
   }
