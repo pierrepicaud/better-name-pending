@@ -4,7 +4,7 @@ import 'package:tflite_flutter_helper/tflite_flutter_helper.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:tflite_flutter/tflite_flutter.dart';
 import '../classifier/classifier_category.dart';
-import '../classifier/get_sensors_data.dart';
+// import '../classifier/get_sensors_data.dart';
 import 'package:flutter/material.dart';
 import '../classifier/classifier.dart';
 import 'dart:typed_data';
@@ -29,11 +29,11 @@ enum _ResultStatus {
 class _ActivitiesRecognizerState extends State<ActivitiesRecognizer> {
   final bool _isAnalysing = false;
 
-  List<List<Float64List>> sensorData = getSensorsData();
+  // Being reworked
+  // List<List<Float64List>> sensorData = getSensorsData();
 
   // Result
   _ResultStatus _resultStatus = _ResultStatus.notStarted;
-  String _plantLabel = ''; // Name of Error Message
   double _accuracy = 0.0;
 
   late Classifier _classifier;
@@ -44,7 +44,29 @@ class _ActivitiesRecognizerState extends State<ActivitiesRecognizer> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
+Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Center(
+        child: Container(
+          width: 200,
+          height: 200,
+          decoration: const BoxDecoration(
+            color: Colors.lightBlueAccent,
+            shape: BoxShape.circle,
+          ),
+          child: Center(
+            child: Text(
+              'Accuracy: $_accuracy',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
