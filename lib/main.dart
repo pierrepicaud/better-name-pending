@@ -1,4 +1,7 @@
 // Reset this to the initial state
+// ignore_for_file: library_private_types_in_public_api, use_key_in_widget_constructors, prefer_const_constructors
+
+import 'package:app/prediction/widget/prediction_screen.dart';
 import 'package:flutter/material.dart';
 import 'sensor_display/sensor_data_screen.dart';
 
@@ -12,11 +15,9 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   int _selectedIndex = 0;
   static final List<Widget> _widgetOptions = <Widget>[
-    const Text('Work in progress'),
-    const Text('Work in progress'),
-    const Text('Work in progress'),
-    // SensorDataScreen(),
-    // SensorSegmentScreen(),
+    ActivitiesRecognizer(),
+    SensorDataScreen(),
+
   ];
 
   void _onItemTapped(int index) {
@@ -40,15 +41,11 @@ class _MyAppState extends State<MyApp> {
                 color: Colors.yellow,
                 size: 32.0,
               ),
-              label: 'Prediction',
+              label: 'Prediction screen',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.sensors),
               label: 'Sensor Data',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'Data Segment',
             ),
           ],
           currentIndex: _selectedIndex,
