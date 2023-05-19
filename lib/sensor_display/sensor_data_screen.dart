@@ -1,8 +1,8 @@
 // ignore_for_file: avoid_print
-
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:sensors_plus/sensors_plus.dart';
-import '../prediction/classifier/sensors_data.dart';
+// import '../prediction/classifier/sensors_data.dart';
 
 class SensorDataScreen extends StatefulWidget {
   @override
@@ -10,6 +10,10 @@ class SensorDataScreen extends StatefulWidget {
 }
 
 class _SensorDataScreenState extends State<SensorDataScreen> {
+  StreamSubscription<AccelerometerEvent>? accelerometerSubscription;
+  StreamSubscription<GyroscopeEvent>? gyroscopeSubscription;
+  StreamSubscription<UserAccelerometerEvent>? userAccelerometerSubscription;
+
   List<double>? _accelerometerValues;
   List<double>? _gyroscopeValues;
   List<double>? _userAccelerometerValues;
@@ -25,8 +29,12 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
   bool thereIsStillTime = false;
 
   void _startCountDown() async {
+    accelerometerSamplingRate = 0;
+    userAccelerometerSamplingRate = 0;
+    gyroscopeSamplingRate = 0;
+
     thereIsStillTime = true;
-    await Future.delayed(Duration(milliseconds: 2560));
+    await Future.delayed(const Duration(milliseconds: 2560));
     thereIsStillTime = false;
     _updateSamplingRate();
   }
@@ -34,12 +42,11 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
   @override
   void initState() {
     super.initState();
+
     _accelerometerValues = <double>[0, 0, 0];
     _gyroscopeValues = <double>[0, 0, 0];
     _userAccelerometerValues = <double>[0, 0, 0];
-    accelerometerSamplingRate = 0;
-    userAccelerometerSamplingRate = 0;
-    gyroscopeSamplingRate = 0;
+
     _startCountDown();
     _activateSensors();
     _updateSamplingRate();
@@ -52,37 +59,46 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
   }
 
   void _activateSensors() {
-    accelerometerEvents.listen((AccelerometerEvent event) {
-      setState(() {
-        _accelerometerValues = <double>[event.x, event.y, event.z];
-      });
-      if (thereIsStillTime) {
-        recordedAccelerometerEvent.add(event);
+    accelerometerSubscription =
+        accelerometerEvents.listen((AccelerometerEvent event) {
+      if (mounted) {
+        setState(() {
+          _accelerometerValues = <double>[event.x, event.y, event.z];
+        });
+        if (thereIsStillTime) {
+          recordedAccelerometerEvent.add(event);
+        }
       }
     });
 
-    gyroscopeEvents.listen((GyroscopeEvent event) {
-      setState(() {
-        _gyroscopeValues = <double>[event.x, event.y, event.z];
-      });
-      if (thereIsStillTime) {
-        recoreddGyroscopeEvent.add(event);
+    gyroscopeSubscription = gyroscopeEvents.listen((GyroscopeEvent event) {
+      if (mounted) {
+        setState(() {
+          _gyroscopeValues = <double>[event.x, event.y, event.z];
+        });
+        if (thereIsStillTime) {
+          recoreddGyroscopeEvent.add(event);
+        }
       }
     });
 
-    userAccelerometerEvents.listen((UserAccelerometerEvent event) {
-      setState(() {
-        _userAccelerometerValues = <double>[event.x, event.y, event.z];
-      });
-      if (thereIsStillTime) {
-        recordedUserAccelerometerEvent.add(event);
+    userAccelerometerSubscription =
+        userAccelerometerEvents.listen((UserAccelerometerEvent event) {
+      if (mounted) {
+        setState(() {
+          _userAccelerometerValues = <double>[event.x, event.y, event.z];
+        });
+        if (thereIsStillTime) {
+          recordedUserAccelerometerEvent.add(event);
+        }
       }
     });
   }
 
   void _deactivateSensors() {
-    accelerometerEvents.drain();
-    gyroscopeEvents.drain();
+    accelerometerSubscription?.cancel();
+    gyroscopeSubscription?.cancel();
+    userAccelerometerSubscription?.cancel();
   }
 
   double calculateSamplingRate(int numberOfSamples, int timeInMilliseconds) {
@@ -119,7 +135,7 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
         children: [
           Expanded(
             child: Container(
-              color: Colors.grey[200],
+              color: Colors.grey[300],
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
