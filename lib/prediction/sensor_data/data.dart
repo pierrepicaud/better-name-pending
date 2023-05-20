@@ -24,38 +24,41 @@ class SensorsData {
 
   void dispose() {
     accelerometerSubscription?.cancel();
-    gyroscopeSubscription?.cancel();
     userAccelerometerSubscription?.cancel();
+    gyroscopeSubscription?.cancel();
   }
 
   Future<List<List<double>>> getData() async {
     // Your async operation here.
-    while (_recordedAccelerometerValues.length < 64) {
-      accelerometerSubscription =
-          accelerometerEvents.listen((AccelerometerEvent event) {
-        _accelerometerValues = <double>[event.x, event.y, event.z];
-        _recordedAccelerometerValues.add(_accelerometerValues);
-      });
-    }
+    accelerometerSubscription =
+        accelerometerEvents.listen((AccelerometerEvent event) {
+      _accelerometerValues = <double>[event.x, event.y, event.z];
+      _recordedAccelerometerValues.add(_accelerometerValues);
+      if (_recordedAccelerometerValues.length >= 64) {
+        accelerometerSubscription?.cancel();
+      }
+    });
 
-    while (_recordedUserAccelerometerValues.length < 64) {
-      userAccelerometerSubscription =
-          userAccelerometerEvents.listen((UserAccelerometerEvent event) {
-        _userAccelerometerValues = <double>[event.x, event.y, event.z];
-        _recordedUserAccelerometerValues.add(_userAccelerometerValues);
-      });
-    }
+    userAccelerometerSubscription =
+        userAccelerometerEvents.listen((UserAccelerometerEvent event) {
+      _userAccelerometerValues = <double>[event.x, event.y, event.z];
+      _recordedUserAccelerometerValues.add(_userAccelerometerValues);
+      if (_recordedUserAccelerometerValues.length >= 64) {
+        userAccelerometerSubscription?.cancel();
+      }
+    });
 
     int count = 0;
-    while (_recordedUserAccelerometerValues.length < 128) {
-      gyroscopeSubscription = gyroscopeEvents.listen((event) {
-        count++;
-        if (count % 2 == 0) {
-          _gyroscopeValues = <double>[event.x, event.y, event.z];
-          _recoreddGyroscopeValues.add(_gyroscopeValues);
-        }
-      });
-    }
+    gyroscopeSubscription = gyroscopeEvents.listen((event) {
+      count++;
+      if (count % 2 == 0) {
+        _gyroscopeValues = <double>[event.x, event.y, event.z];
+        _recoreddGyroscopeValues.add(_gyroscopeValues);
+      }
+      if (_recordedUserAccelerometerValues.length < 128) {
+        gyroscopeSubscription?.cancel();
+      }
+    });
 
     var splAcc = splitList(_recordedAccelerometerValues);
     var splUser = splitList(_recordedUserAccelerometerValues);
