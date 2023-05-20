@@ -62,6 +62,12 @@ class Classifier {
     }
   }
 
+  // Get the data from the sensors, we know the sampling rate so just run a loop
+  // get enough 128 data points
+  // For the accelerators just get enough 128, that would need 2,56 * 2 = 5,12s
+  // time it
+  // store it in the decompsed form
+
   Future<List?> _predict() async {
     try {
       // Get sensor data
