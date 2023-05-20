@@ -29,6 +29,10 @@ class SensorsData {
   }
 
   Future<List<List<double>>> getData() async {
+    var accelerometerCompleter = Completer<void>();
+    var userAccelerometerCompleter = Completer<void>();
+    var gyroscopeCompleter = Completer<void>();
+
     // Your async operation here.
     accelerometerSubscription =
         accelerometerEvents.listen((AccelerometerEvent event) {
@@ -36,6 +40,7 @@ class SensorsData {
       _recordedAccelerometerValues.add(_accelerometerValues);
       if (_recordedAccelerometerValues.length >= 64) {
         accelerometerSubscription?.cancel();
+        accelerometerCompleter.complete(); // Complete the future.
       }
     });
 
@@ -45,6 +50,7 @@ class SensorsData {
       _recordedUserAccelerometerValues.add(_userAccelerometerValues);
       if (_recordedUserAccelerometerValues.length >= 64) {
         userAccelerometerSubscription?.cancel();
+        userAccelerometerCompleter.complete(); // Complete the future.
       }
     });
 
@@ -57,8 +63,16 @@ class SensorsData {
       }
       if (_recordedUserAccelerometerValues.length < 128) {
         gyroscopeSubscription?.cancel();
+        gyroscopeCompleter.complete(); // Complete the future.
       }
     });
+
+    // Wait for all sensor data to be ready.
+    await Future.wait([
+      accelerometerCompleter.future,
+      userAccelerometerCompleter.future,
+      gyroscopeCompleter.future
+    ]);
 
     var splAcc = splitList(_recordedAccelerometerValues);
     var splUser = splitList(_recordedUserAccelerometerValues);
