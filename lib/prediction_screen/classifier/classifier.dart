@@ -1,107 +1,61 @@
-// ignore_for_file: avoid_print
-
-import 'package:tflite_flutter/tflite_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-// import 'get_sensors_data.dart';
+import 'package:tflite_flutter/tflite_flutter.dart';
 
 class Classifier {
-  late Interpreter _interpreter;
+  late Interpreter interpreter;
   late List<int> inputShape;
   late List<int> outputShape;
   late TfLiteType inputType;
   late TfLiteType outputType;
 
-  bool _isReady = false;
+  // There is a file that contain the model that I want to read from
 
-  // There is a file that contain the model
-  Future<String?> readMyFile() async {
+  Classifier();
+
+  Future<String> loadModelPath() async {
+    String modelPath = '';
     try {
-      final fileContent = await rootBundle.loadString('assets/model.txt');
-      return fileContent;
+      modelPath = await rootBundle.loadString('assets/model.txt');
     } catch (e) {
       debugPrint("Couldn't read file: $e");
-      return null;
     }
+    return modelPath;
   }
 
-  Classifier() {
-    _loadModel();
-  }
-
-  Future<void> _loadModel() async {
-    final modelFile = await readMyFile();
-
-    debugPrint(
-      'Start loading of Classifier with '
-      // 'labels at $_labelsFileName, '
-      'Using model $modelFile',
-    );
+  Future<void> init() async {
     try {
-      if (modelFile != null) {
-        _interpreter = await Interpreter.fromAsset(modelFile);
-        _isReady = true;
+      String modelPath = await loadModelPath();
+      interpreter = await Interpreter.fromAsset(modelPath);
 
-        // Get input and output shape from the model
-        inputShape = _interpreter.getInputTensor(0).shape;
-        outputShape = _interpreter.getOutputTensor(0).shape;
+      inputShape = interpreter.getInputTensor(0).shape;
+      outputShape = interpreter.getOutputTensor(0).shape;
 
-        // Get input and output type from the model
-        inputType = _interpreter.getInputTensor(0).type;
-        outputType = _interpreter.getOutputTensor(0).type;
+      inputType = interpreter.getInputTensor(0).type;
+      outputType = interpreter.getOutputTensor(0).type;
 
-        debugPrint('Interpreter loaded successfully'
-            'Input shape: $inputShape'
-            'Input type: $inputType'
-            'Output type: $outputType'
-            'Output shape: $outputShape');
-      }
+      debugPrint('Interpreter loaded successfully\n'
+          'Input shape: $inputShape\n'
+          'Input type: $inputType\n'
+          'Output type: $outputType\n'
+          'Output shape: $outputShape Ouput shape type: ${outputShape.runtimeType}\n');
     } catch (e) {
-      debugPrint('Failed to load model.');
-      debugPrint(e.toString());
+      debugPrint('Failed to load model. $e');
     }
   }
 
-  // Get the data from the sensors, we know the sampling rate so just run a loop
-  // get enough 128 data points
-  // For the accelerators just get enough 128, that would need 2,56 * 2 = 5,12s
-  // time it
-  // store it in the decompsed form
+  List<dynamic> predict(List<dynamic> input) {
+    var outputSize = outputShape.reduce((value, element) => value * element);
+    var output = List<dynamic>.filled(outputSize, 0, growable: false)
+        // var output = List<dynamic>.filled(6, 0, growable: false)
+        .reshape(outputShape);
+    interpreter.run(input.reshape(inputShape), output); // Flatten?
+    return output;
+  }
 
-  Future<List?> _predict() async {
-    try {
-      // Get sensor data
-      // List<List<Float64List>> input = getSensorsData();
-      List<List<Float64List>> input = []; // Dummy values
-
-      // Flatten the input data
-      var flatInput = input
-          .expand((element) => element)
-          .expand((element) => element)
-          .toList();
-
-      // Prepare the output buffer
-      var outputBuffer;
-
-      if (outputType == TfLiteType.float32) {
-        outputBuffer = List.filled(
-                outputShape.reduce((value, element) => value * element), 0.0)
-            .reshape(outputShape);
-      } else if (outputType == TfLiteType.uint8) {
-        outputBuffer = List.filled(
-                outputShape.reduce((value, element) => value * element), 0)
-            .reshape(outputShape);
-      } else {
-        throw Exception('Output type $outputType is not supported');
-      }
-
-      // Predict
-      _interpreter.run(flatInput, outputBuffer);
-
-      // debugPrint(outputBuffer);
-      print(outputBuffer.toString());
-    } catch (e) {
-      debugPrint('Something went wrong: ${e.toString()}');
-    }
+  // Need to map it to the label
+  int postprocess(List<double> output) {
+    return output.indexOf(
+        output.reduce((value, element) => value > element ? value : element));
   }
 }

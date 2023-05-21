@@ -127,15 +127,15 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(
-      // title: Text('Sensor Data'),
-      // ),
+      appBar: AppBar(
+        title: const Text('Sensor Data'),
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(
             child: Container(
-              color: Colors.grey[300],
+              // color: Colors.grey[300],
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -160,12 +160,12 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
           ),
           Expanded(
             child: Container(
-              color: Colors.grey[300],
+              // color: Colors.grey[300],
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text(
-                    'Gyroscope',
+                    'User Acceleration',
                     style: TextStyle(fontSize: 24),
                   ),
                   const SizedBox(height: 20),
@@ -185,7 +185,7 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
           ),
           Expanded(
             child: Container(
-              color: Colors.grey[300],
+              // color: Colors.grey[300],
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -210,7 +210,7 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
           ),
           Expanded(
             child: Container(
-              color: Colors.grey[300],
+              // color: Colors.grey[300],
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

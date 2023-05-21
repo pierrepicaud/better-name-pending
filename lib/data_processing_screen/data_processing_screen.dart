@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'sensor_data/data.dart';
 
@@ -33,6 +31,7 @@ class _DataPreparationState extends State<DataPreparation> {
         _isLoading = false;
       });
     }
+    await _loadSensorData();
   }
 
   Future<void> _handleRefresh() async {
