@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import '../sensor_data/data.dart';
 
@@ -33,44 +35,29 @@ class _DataPreparationState extends State<DataPreparation> {
     }
   }
 
+  Future<void> _handleRefresh() async {
+    setState(() {
+      _isLoading = true;
+    });
+    await _loadSensorData();
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
-    } else {
-      return Scaffold(
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10.0),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    border: Border.all(),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    'Data is loaded:\n${sensorDataValues?.sublist(0, 10).toString()}',
-                    overflow: TextOverflow.clip,
-                  ),
-                ),
-                const SizedBox(height: 20.0),
-                ElevatedButton(
-                  onPressed: () {
-                    // Define your action here
-                  },
-                  child: const Text('Your Button Text'),
-                ),
-              ],
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Data Preparation'),
+      ),
+      body: _isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : RefreshIndicator(
+              onRefresh: _handleRefresh,
+              child: SingleChildScrollView(
+                child: Text(sensorDataValues.toString()),
+              ),
             ),
-          ),
-        ),
-      );
-    }
+    );
   }
 }
