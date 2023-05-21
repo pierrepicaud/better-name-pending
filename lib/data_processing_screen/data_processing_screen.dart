@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import '../sensor_data/data.dart';
+import 'sensor_data/data.dart';
 
 class DataPreparation extends StatefulWidget {
   const DataPreparation({Key? key}) : super(key: key);
