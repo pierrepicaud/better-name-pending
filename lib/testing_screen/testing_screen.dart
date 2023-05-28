@@ -1,22 +1,30 @@
+// testing_screen.dart
+
+import 'package:app/testing_screen/test_data/data.dart';
 import 'package:flutter/material.dart';
+import '../prediction_screen/classifier/classifier.dart';
+import 'package:quiver/iterables.dart';
 
-import '../data_processing_screen/sensor_data/data.dart';
-import 'classifier/classifier.dart';
-
-class PredictionScreen extends StatefulWidget {
-  const PredictionScreen({Key? key}) : super(key: key);
+class TestingScreen extends StatefulWidget {
+  const TestingScreen({Key? key}) : super(key: key);
 
   @override
-  _PredictionScreenState createState() => _PredictionScreenState();
+  _TestingScreenState createState() => _TestingScreenState();
 }
 
-class _PredictionScreenState extends State<PredictionScreen> {
+class _TestingScreenState extends State<TestingScreen> {
+  double accuracy = 100.0;
   String prediction = 'Move to start';
 
   late Classifier interpretper;
+  // List<List<double>>? sensorDataValues; is because it's just one sample in more
+  // more than 200 sample the whole xTest is 3d array so List<List<double>> is not enough
+  // it should be Iterable<List<List<double>>>
 
-  List<List<double>>? sensorDataValues;
-  var sensorsDataInstance = SensorsData();
+  Iterable<List<List<double>>>? xTest;
+  Iterable<List<double>>? yTest;
+
+  var testDataInstance = TestData();
 
   bool _dataIsLoading = true;
   bool _modelIsLoading = true;
@@ -29,19 +37,23 @@ class _PredictionScreenState extends State<PredictionScreen> {
   }
 
   Future<void> _initModelAndData() async {
-    await _loadSensorData();
+    await _loadTestData();
     await _loadModel();
-    _predict();
+    _evaluate();
   }
 
-  Future<void> _loadSensorData() async {
+  Future<void> _loadTestData() async {
     try {
-      await sensorsDataInstance.init();
+      await testDataInstance.initXTest();
       setState(() {
-        sensorDataValues = sensorsDataInstance.sensorData;
+        xTest = testDataInstance.xTest; // List<List<double>>?
+      });
+      await testDataInstance.initYTest();
+      setState(() {
+        yTest = testDataInstance.yTest; // Iterable<List<double>>?
       });
     } catch (error) {
-      debugPrint('Error initializing sensor data: $error');
+      debugPrint('Error initializing test data: $error');
     } finally {
       setState(() {
         _dataIsLoading = false;
@@ -61,28 +73,29 @@ class _PredictionScreenState extends State<PredictionScreen> {
     }
   }
 
-  List<String> activities = [
-    "WALKING",
-    "WALKING UPSTAIRS",
-    "WALKING DOWNSTAIRS",
-    "SITTING",
-    "STANDING",
-    "LAYING"
-  ];
-
-  Future<void> _predict() async {
+  void _evaluate() async {
     if (!_dataIsLoading && !_modelIsLoading) {
-      var pred = interpretper.predict(sensorDataValues!);
-      debugPrint('pred: $pred predType: ${pred.runtimeType}');
-      int predictedIndex = interpretper.postprocess(pred[0].cast<double>());
-      setState(() {
-        prediction =
-            activities[predictedIndex]; // or whatever you want to display here
-      });
+      int totalSamples = 0;
+      int correctPredictions = 0;
 
-      // Load new sensor data and make another prediction
-      await _loadSensorData();
-      await _predict();
+      for (var pair in zip([xTest!, yTest!])) {
+        var xTestSample = pair[0];
+        var yTestSample = pair[1];
+        var pred = interpretper.predict(xTestSample);
+
+        debugPrint('pred: $pred predType: ${pred.runtimeType}');
+        debugPrint('ground: $yTestSample predType: ${yTestSample.runtimeType}');
+
+        totalSamples++;
+
+        if (pred == yTestSample) {
+          correctPredictions++;
+        }
+      }
+
+      setState(() {
+        accuracy = (correctPredictions / totalSamples) * 100;
+      });
     }
   }
 
@@ -112,7 +125,7 @@ class _PredictionScreenState extends State<PredictionScreen> {
                 ),
                 child: Center(
                   child: Text(
-                    prediction,
+                    "$accuracy%",
                     style: const TextStyle(
                       fontSize: 30,
                       color: Colors.blue,

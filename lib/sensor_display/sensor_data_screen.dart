@@ -134,104 +134,92 @@ class _SensorDataScreenState extends State<SensorDataScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Expanded(
-            child: Container(
-              // color: Colors.grey[300],
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    'Accelerometer',
-                    style: TextStyle(fontSize: 24),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildSensorValue('X', _accelerometerValues?[0]),
-                      const SizedBox(width: 20),
-                      _buildSensorValue('Y', _accelerometerValues?[1]),
-                      const SizedBox(width: 20),
-                      _buildSensorValue('Z', _accelerometerValues?[2]),
-                    ],
-                  ),
-                ],
-              ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Accelerometer',
+                  style: TextStyle(fontSize: 24),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildSensorValue('X', _accelerometerValues?[0]),
+                    const SizedBox(width: 20),
+                    _buildSensorValue('Y', _accelerometerValues?[1]),
+                    const SizedBox(width: 20),
+                    _buildSensorValue('Z', _accelerometerValues?[2]),
+                  ],
+                ),
+              ],
             ),
           ),
           Expanded(
-            child: Container(
-              // color: Colors.grey[300],
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    'User Acceleration',
-                    style: TextStyle(fontSize: 24),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildSensorValue('X', _userAccelerometerValues?[0]),
-                      const SizedBox(width: 20),
-                      _buildSensorValue('Y', _userAccelerometerValues?[1]),
-                      const SizedBox(width: 20),
-                      _buildSensorValue('Z', _userAccelerometerValues?[2]),
-                    ],
-                  ),
-                ],
-              ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'User Acceleration',
+                  style: TextStyle(fontSize: 24),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildSensorValue('X', _userAccelerometerValues?[0]),
+                    const SizedBox(width: 20),
+                    _buildSensorValue('Y', _userAccelerometerValues?[1]),
+                    const SizedBox(width: 20),
+                    _buildSensorValue('Z', _userAccelerometerValues?[2]),
+                  ],
+                ),
+              ],
             ),
           ),
           Expanded(
-            child: Container(
-              // color: Colors.grey[300],
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    'Gyroscope',
-                    style: TextStyle(fontSize: 24),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildSensorValue('X', _gyroscopeValues?[0]),
-                      const SizedBox(width: 20),
-                      _buildSensorValue('Y', _gyroscopeValues?[1]),
-                      const SizedBox(width: 20),
-                      _buildSensorValue('Z', _gyroscopeValues?[2]),
-                    ],
-                  ),
-                ],
-              ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Gyroscope',
+                  style: TextStyle(fontSize: 24),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildSensorValue('X', _gyroscopeValues?[0]),
+                    const SizedBox(width: 20),
+                    _buildSensorValue('Y', _gyroscopeValues?[1]),
+                    const SizedBox(width: 20),
+                    _buildSensorValue('Z', _gyroscopeValues?[2]),
+                  ],
+                ),
+              ],
             ),
           ),
           Expanded(
-            child: Container(
-              // color: Colors.grey[300],
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text(
-                    'Sampling Rates',
-                    style: TextStyle(fontSize: 24),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildSensorValue('Acc', accelerometerSamplingRate),
-                      const SizedBox(width: 20),
-                      _buildSensorValue(
-                          'UserAcc', userAccelerometerSamplingRate),
-                      const SizedBox(width: 20),
-                      _buildSensorValue('Gyro', gyroscopeSamplingRate),
-                    ],
-                  ),
-                ],
-              ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Sampling Rates',
+                  style: TextStyle(fontSize: 24),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _buildSensorValue('Acc', accelerometerSamplingRate),
+                    const SizedBox(width: 20),
+                    _buildSensorValue(
+                        'UserAcc', userAccelerometerSamplingRate),
+                    const SizedBox(width: 20),
+                    _buildSensorValue('Gyro', gyroscopeSamplingRate),
+                  ],
+                ),
+              ],
             ),
           ),
         ],

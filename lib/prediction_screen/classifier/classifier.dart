@@ -53,7 +53,7 @@ class Classifier {
     return output;
   }
 
-  // Need to map it to the label
+  // Need to map it to the label: Done
   int postprocess(List<double> output) {
     return output.indexOf(
         output.reduce((value, element) => value > element ? value : element));
