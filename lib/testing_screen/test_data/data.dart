@@ -8,11 +8,11 @@ class TestData {
 
   TestData();
 
-  Future<Iterable<List<List<double>>>> initXTest() async {
-    return await buildData('test');
+  Future<void> initXTest() async {
+    xTest = await buildData('test');
   }
 
-  Future<Iterable<List<double>>> initYTest() async {
-    return await loadY('test');
+  Future<void> initYTest() async {
+    yTest = await loadY('test');
   }
 }

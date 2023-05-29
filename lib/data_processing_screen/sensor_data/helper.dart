@@ -36,7 +36,7 @@ List<List<double>> splitList(List<List<double>?> data) {
     if (point == null) {
       throw Exception('Null in splitList, there is nothing to split');
     }
-    ;
+
     xData.add(point[0]);
     yData.add(point[1]);
     zData.add(point[2]);

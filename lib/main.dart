@@ -4,8 +4,8 @@
 import 'package:app/data_processing_screen/data_processing_screen.dart';
 import 'package:app/prediction_screen/prediction_screen.dart';
 import 'package:app/testing_screen/testing_screen.dart';
-import 'package:flutter/material.dart';
 import 'sensor_display/sensor_data_screen.dart';
+import 'package:flutter/material.dart';
 
 void main() => runApp(MyApp());
 
@@ -38,21 +38,39 @@ class _MyAppState extends State<MyApp> {
           child: _widgetOptions.elementAt(_selectedIndex),
         ),
         bottomNavigationBar: BottomNavigationBar(
-          items: const <BottomNavigationBarItem>[
+          items: <BottomNavigationBarItem>[
             BottomNavigationBarItem(
-              icon: Icon(Icons.sensors),
+              icon: Icon(
+                Icons.sensors,
+                color: _selectedIndex == 0 ? Colors.blue : Colors.lightBlue,
+              ),
               label: 'Sensor Data',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.scatter_plot),
+              icon: Icon(
+                Icons.scatter_plot,
+                color: _selectedIndex == 1 ? Colors.blue : Colors.lightBlue,
+              ),
               label: 'Data Preprocessing',
             ),
             BottomNavigationBarItem(
-                icon: Icon(Icons.lightbulb_outline, size: 32.0),
-                label: "Prediction")
+              icon: Icon(
+                Icons.lightbulb_outline,
+                color: _selectedIndex == 2 ? Colors.blue : Colors.lightBlue,
+                size: 32.0,
+              ),
+              label: "Prediction",
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(
+                Icons.check_circle_outline,
+                color: _selectedIndex == 3 ? Colors.blue : Colors.lightBlue,
+                size: 32.0,
+              ),
+              label: "Testing",
+            )
           ],
           currentIndex: _selectedIndex,
-          selectedItemColor: Colors.blue,
           onTap: _onItemTapped,
         ),
       ),

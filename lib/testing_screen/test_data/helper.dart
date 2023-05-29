@@ -5,7 +5,17 @@ import 'package:flutter/services.dart';
 Future<List<List<double>>> readData(String file) async {
   String data = await rootBundle.loadString(file);
   var lines = data.split('\n');
-  return lines.map((line) => line.trim().split(' ').map((item) => double.parse(item)).toList()).toList();
+  return lines.where((line) => line.trim().isNotEmpty).map((line) {
+    var items = line.trim().split(RegExp(r'\s+'));
+    return items.map((item) {
+      try {
+        return double.parse(item);
+      } catch (e) {
+        print("Failed to parse in readData: '$item'");
+        throw e;
+      }
+    }).toList();
+  }).toList();
 }
 
 List<List<List<double>>> transpose3d(List<List<List<double>>> data) {
@@ -28,7 +38,9 @@ Future<Iterable<List<List<double>>>> buildData(String subset) async {
     throw Exception("Invalid subset: $subset");
   }
 
-  String folderPath = "UCI_HAR_Dataset/UCI_HAR_Dataset/$subset/Inertial Signals/";
+  String folderPath =
+      "UCI_HAR_Dataset/UCI_HAR_Dataset/$subset/Inertial Signals/";
+  // String folderPath = "$subset/Inertial Signals/";
 
   List<String> signalOrder = [
     "body_acc_x_",
@@ -42,11 +54,17 @@ Future<Iterable<List<List<double>>>> buildData(String subset) async {
     "total_acc_z_",
   ];
 
-  List<String> signalFiles = signalOrder.map((x) => "$folderPath${x}$subset.txt").toList();
+  List<String> signalFiles =
+      signalOrder.map((x) => "$folderPath${x}$subset.txt").toList();
 
   List<List<List<double>>> signalsData = [];
-  for (String signalFile in signalFiles) {
-    signalsData.add(await readData(signalFile));
+  try {
+    for (String signalFile in signalFiles) {
+      signalsData.add(await readData(signalFile));
+    }
+  } catch (e) {
+    debugPrint("Failed to parse in readData: '$e'");
+    rethrow;
   }
 
   int numSamples = signalsData.length;
@@ -61,10 +79,15 @@ Future<Iterable<List<List<double>>>> buildData(String subset) async {
   numSignals = signalsData[0][0].length;
   debugPrint("Shape after transpose: $numSamples, $numTimesteps, $numSignals");
 
-  List<int> expectedShape = subset == "train" ? [7352, 128, signalFiles.length] : [2947, 128, signalFiles.length];
+  List<int> expectedShape = subset == "train"
+      ? [7352, 128, signalFiles.length]
+      : [2947, 128, signalFiles.length];
 
-  if (numSamples != expectedShape[0] || numTimesteps != expectedShape[1] || numSignals != expectedShape[2]) {
-    throw Exception("Instead of shape $expectedShape, shape is actually $numSamples, $numTimesteps, $numSignals");
+  if (numSamples != expectedShape[0] ||
+      numTimesteps != expectedShape[1] ||
+      numSignals != expectedShape[2]) {
+    throw Exception(
+        "Instead of shape $expectedShape, shape is actually $numSamples, $numTimesteps, $numSignals");
   }
 
   return signalsData;
@@ -74,7 +97,20 @@ Future<Iterable<List<double>>> loadY(String subset) async {
   String path = "UCI_HAR_Dataset/UCI_HAR_Dataset/$subset/y_$subset.txt";
 
   String fileContent = await rootBundle.loadString(path);
-  List<int> y = fileContent.split('\n').map((line) => int.parse(line.trim())).toList();
+  List<int> y = [];
+
+  List<String> lines = fileContent.split('\n');
+  for (String line in lines) {
+    line = line.trim();
+    if (line.isNotEmpty) {
+      try {
+        y.add(int.parse(line));
+      } catch (e) {
+        print("Failed to parse in loadY: '$line'");
+        throw e;
+      }
+    }
+  }
 
   List<List<double>> oneHotLabels = [];
   for (var j in y) {
@@ -82,33 +118,23 @@ Future<Iterable<List<double>>> loadY(String subset) async {
   }
 
   if (subset == "train") {
-    assert(oneHotLabels.length == 7352 && oneHotLabels[0].length == 6, "Wrong dimensions: ${oneHotLabels.length}, ${oneHotLabels[0].length} should be (7352, 6)");
+    assert(oneHotLabels.length == 7352 && oneHotLabels[0].length == 6,
+        "Wrong dimensions: ${oneHotLabels.length}, ${oneHotLabels[0].length} should be (7352, 6)");
   }
-  
+
   if (subset == "test") {
-    assert(oneHotLabels.length == 2947 && oneHotLabels[0].length == 6, "Wrong dimensions: ${oneHotLabels.length}, ${oneHotLabels[0].length} should be (2947, 6)");
+    assert(oneHotLabels.length == 2947 && oneHotLabels[0].length == 6,
+        "Wrong dimensions: ${oneHotLabels.length}, ${oneHotLabels[0].length} should be (2947, 6)");
   }
-  
-  assert((y[0] - 1) == oneHotLabels[0].indexWhere((j) => j == 1.0), "Value mismatch ${oneHotLabels[0].indexWhere((j) => j == 1.0)} vs ${y[0] - 1}");
+
+  assert((y[0] - 1) == oneHotLabels[0].indexWhere((j) => j == 1.0),
+      "Value mismatch ${oneHotLabels[0].indexWhere((j) => j == 1.0)} vs ${y[0] - 1}");
 
   return oneHotLabels;
 }
 
-// void main() {
-//   List<String> listA = ['a', 'b', 'c'];
-//   List<int> listB = [1, 2, 3];
-
-//   var zipped = zipLists(listA, listB);
-
-//   for (var item in zipped) {
-//     var itemA = item[0];
-//     var itemB = item[1];
-
-//     print('$itemA$itemB');
-//   }
-// }
-
-Iterable<List<dynamic>> zipLists(List<dynamic> list1, List<dynamic> list2) sync* {
+Iterable<List<dynamic>> zipLists(
+    List<dynamic> list1, List<dynamic> list2) sync* {
   var minLength = list1.length < list2.length ? list1.length : list2.length;
 
   for (var i = 0; i < minLength; i++) {

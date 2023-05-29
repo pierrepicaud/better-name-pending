@@ -53,9 +53,16 @@ class Classifier {
     return output;
   }
 
-  // Need to map it to the label: Done
+  //
   int postprocess(List<double> output) {
     return output.indexOf(
         output.reduce((value, element) => value > element ? value : element));
+  }
+
+  List<List<double>> nonMaxSuppression(List<List<double>> input) {
+    return input.map((sublist) {
+      double maxVal = sublist.reduce((a, b) => a > b ? a : b);
+      return sublist.map((val) => val == maxVal ? 1.0 : 0.0).toList();
+    }).toList();
   }
 }

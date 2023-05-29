@@ -13,10 +13,10 @@ class TestingScreen extends StatefulWidget {
 }
 
 class _TestingScreenState extends State<TestingScreen> {
-  double accuracy = 100.0;
+  double accuracy = 0.0;
   String prediction = 'Move to start';
 
-  late Classifier interpretper;
+  late Classifier interpreter;
   // List<List<double>>? sensorDataValues; is because it's just one sample in more
   // more than 200 sample the whole xTest is 3d array so List<List<double>> is not enough
   // it should be Iterable<List<List<double>>>
@@ -32,14 +32,16 @@ class _TestingScreenState extends State<TestingScreen> {
   @override
   void initState() {
     super.initState();
-    interpretper = Classifier();
+    interpreter = Classifier();
     _initModelAndData();
   }
 
   Future<void> _initModelAndData() async {
+    debugPrint('Initializing model and data...');
     await _loadTestData();
     await _loadModel();
-    _evaluate();
+    await _evaluate();
+    debugPrint('Model and data initialized.');
   }
 
   Future<void> _loadTestData() async {
@@ -47,13 +49,16 @@ class _TestingScreenState extends State<TestingScreen> {
       await testDataInstance.initXTest();
       setState(() {
         xTest = testDataInstance.xTest; // List<List<double>>?
+        debugPrint('xTest loaded: ${xTest?.toList()[0][0]}');
       });
       await testDataInstance.initYTest();
       setState(() {
         yTest = testDataInstance.yTest; // Iterable<List<double>>?
+        debugPrint('yTest loaded: ${yTest?.toList()[0]}');
       });
     } catch (error) {
       debugPrint('Error initializing test data: $error');
+      debugPrint('Stack trace: ${StackTrace.current}');
     } finally {
       setState(() {
         _dataIsLoading = false;
@@ -63,7 +68,7 @@ class _TestingScreenState extends State<TestingScreen> {
 
   Future<void> _loadModel() async {
     try {
-      await interpretper.init();
+      await interpreter.init();
     } catch (error) {
       debugPrint('Error loading model: $error');
     } finally {
@@ -73,34 +78,51 @@ class _TestingScreenState extends State<TestingScreen> {
     }
   }
 
-  void _evaluate() async {
-    if (!_dataIsLoading && !_modelIsLoading) {
+  Future<void> _evaluate() async {
+    try {
+      if (_dataIsLoading || _modelIsLoading || xTest == null || yTest == null) {
+        return;
+      }
+
       int totalSamples = 0;
       int correctPredictions = 0;
 
       for (var pair in zip([xTest!, yTest!])) {
         var xTestSample = pair[0];
         var yTestSample = pair[1];
-        var pred = interpretper.predict(xTestSample);
 
-        debugPrint('pred: $pred predType: ${pred.runtimeType}');
-        debugPrint('ground: $yTestSample predType: ${yTestSample.runtimeType}');
+        var pred = interpreter.predict(xTestSample);
+        pred = interpreter.nonMaxSuppression(
+            pred.map((e) => (e as List).cast<double>()).toList());
+        pred = pred.expand((i) => i).toList();
 
         totalSamples++;
 
-        if (pred == yTestSample) {
-          correctPredictions++;
-        }
-      }
+        int maxPredIndex = pred.indexOf(1.0);
+        int maxYTestSampleIndex = yTestSample.indexOf(1.0);
 
-      setState(() {
-        accuracy = (correctPredictions / totalSamples) * 100;
-      });
+        if (maxPredIndex == maxYTestSampleIndex) {
+          correctPredictions++;
+          debugPrint('Correct prediction! Total correct: $correctPredictions');
+          debugPrint('pred: $pred predType: ${pred.runtimeType}');
+          debugPrint(
+              'ground: $yTestSample groundType: ${yTestSample.runtimeType}');
+        } else {
+          debugPrint('Test Failed');
+        }
+        setState(() {
+          accuracy = (correctPredictions / totalSamples) * 100;
+        });
+      }
+    } catch (e, stackTrace) {
+      debugPrint('Error during evaluation: $e');
+      debugPrint('$stackTrace');
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    debugPrint('Building widget...');
     return Scaffold(
       appBar: AppBar(
         title: const Text('Prediction Screen'),
