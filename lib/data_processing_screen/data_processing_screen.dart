@@ -25,7 +25,7 @@ class _DataPreparationState extends State<DataPreparation> {
       await sensorsDataInstance.init();
       sensorDataValues = sensorsDataInstance.sensorData;
     } catch (error) {
-      print('Error initializing sensor data: $error');
+      debugPrint('Error initializing sensor data: $error');
     } finally {
       setState(() {
         _isLoading = false;

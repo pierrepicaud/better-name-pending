@@ -37,7 +37,9 @@ class _PredictionScreenState extends State<PredictionScreen> {
   Future<void> _loadSensorData() async {
     try {
       await sensorsDataInstance.init();
-      sensorDataValues = sensorsDataInstance.sensorData;
+      setState(() {
+        sensorDataValues = sensorsDataInstance.sensorData;
+      });
     } catch (error) {
       debugPrint('Error initializing sensor data: $error');
     } finally {
@@ -61,8 +63,8 @@ class _PredictionScreenState extends State<PredictionScreen> {
 
   List<String> activities = [
     "WALKING",
-    "WALKING_UPSTAIRS",
-    "WALKING_DOWNSTAIRS",
+    "WALKING UPSTAIRS",
+    "WALKING DOWNSTAIRS",
     "SITTING",
     "STANDING",
     "LAYING"
